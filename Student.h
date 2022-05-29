@@ -10,8 +10,7 @@ class Student {
 public:
 
 	Student();
-	
-	
+		
 	TimeTable* get_timetable();
 
 	/*
@@ -31,6 +30,10 @@ public:
 	5. 系统自动进行路径规划
 	*/
 	void start_navigation();
+
+private:
+
+	void strategy_4(char source[], char dest[]);
 
 private:
 

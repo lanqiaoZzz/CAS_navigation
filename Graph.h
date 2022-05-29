@@ -1,5 +1,6 @@
 #include "Building.h"
 #include "Bus.h"
+#include <algorithm>
 
 #define INF 100000000
 
@@ -39,6 +40,13 @@ public:
     void init_graph(const char filename[]);
 
     /*
+    建筑物名字 --> 建筑物编号
+    name[]: 建筑物的名字
+    return: 该建筑物的编号（若未查找到，返回0）
+    */
+    int name_to_index(char name[]);
+
+    /*
     打印线路
     start_place: 起点(建筑物名)
     end_place: 终点
@@ -50,15 +58,18 @@ public:
     //测试用
     void output();
 
-private:
-    
     /*
-    建筑物名字 --> 建筑物编号
-    name[]: 建筑物的名字
-    return: 该建筑物的编号
+    选作策略: 途经多个地点的最短距离策略
+    start: 起点(建筑物编号)
+    end: 终点
+    node[]: 途径地点的数组
+    num: 途经地点的个数
+    return: 距离
     */
-    int name_to_index(char name[]);
-    
+    int shortest_dis_places(int start, int end, int node[], int num);
+
+private:
+  
     /*
     策略一: 最短距离策略
     start: 起点(建筑物编号)
@@ -85,6 +96,16 @@ private:
     return: 返回所需时间
     */
     int shortest_time_by_vehicle(int start, int end, int speed_on_foot, int speed_by_bike);
+
+    /*
+    Dijkstra
+    start: 起点(建筑物编号)
+    end: 终点
+    return: 距离    
+    */
+    int dijkstra(int start, int end);
+  
+    
 
     /*
     输出某两个建筑物间的线路

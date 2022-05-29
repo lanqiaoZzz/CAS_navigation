@@ -25,7 +25,7 @@ void Student::start_navigation() {
     cout << "---开始查找目的地---" << endl;
     cout << "请选择您要输入的信息类型：" << endl;
     cout << "1.课程名称" << endl;
-    cout << "2.上课时间" << endl;
+    cout << "2.上课时间(格式: x-y-z, 代表第x周第y天z点)" << endl;
     cout << "3.上课地点(s-xxx / b-xxx)" << endl;
 
     int type;
@@ -52,7 +52,7 @@ void Student::start_navigation() {
     //未查找到
     if (dest == NULL) {
 
-        cout << "未查找到目的地，已退出" << endl;
+        cout << "未查找到对应的目的地，已退出" << endl;
         return;
     }
     else {
@@ -60,7 +60,7 @@ void Student::start_navigation() {
         cout << "您将前往的目的地是：" << dest << endl;
     }
 
-    //3. 输入自己当前所在的位置(建筑物名)、导航策略和当前时间(精确到分钟)
+    //3. 输入自己当前所在的位置(建筑物名)、导航策略
     cout << "请输入您当前所在的位置(s-xxx / b-xxx)：" << endl;
 
     char source[30];
@@ -70,7 +70,14 @@ void Student::start_navigation() {
     cout << "1.最短距离" << endl;
     cout << "2.最短时间" << endl;
     cout << "3.交通工具的最短时间" << endl;
+    cout << "4.途经多个地点的最短距离" << endl;
     cin >> type;
+
+    if (type == 4)
+    {
+        this->strategy_4(source, dest);
+        return;
+    }
 
     cout << "即将开始导航(" << source << " -- " << dest << " 策略" << type << ")" << endl;
     cout << "------------------------" << endl;
@@ -103,7 +110,6 @@ void Student::start_navigation() {
     //4.3 若不在同一校区，分为三段(1.当前位置到学校门口 2.一个校区到另一个校区 3.学校门口到上课地点)
     else if(dest[0] == 's' && source[0] == 'b' || dest[0] == 'b' && source[0] == 's') 
     {
-
         char temp1[] = "s-西门";
         char temp2[] = "b-南门";
 
@@ -196,4 +202,88 @@ void Student::start_navigation() {
     cout << "预计全程需" << sum << "分钟可到达目的地" << endl;
     cout << "------------------------" << endl;
     cout << "导航结束" << endl;
+}
+
+void Student::strategy_4(char source[], char dest[])
+{
+    int num;
+    cout << "请输入途经地点的个数" << endl;
+    cin >> num;
+    cout << "请输入途经地点(s-xxx / b-xxx), 并以空格进行分隔" << endl;
+
+    int flag = 1;
+    int* node = new int[num];
+
+    for (int i = 0; i < num; i++)
+    {
+        int index;
+        char str[30];
+
+        cin >> str;
+        if (str[0] == 's')
+        {
+            index = this->s_graph.name_to_index(str);
+        }
+        else if (str[0] == 'b')
+        {
+            index = this->b_graph.name_to_index(str);
+        }
+        else
+        {
+            index = 0;
+        }
+
+        if (index == 0) flag = 0;
+
+        node[i] = index;
+    }
+
+    if (flag == 0)
+    {
+        cout << "某个途经地点不存在，已退出" << endl;
+        return;
+    }
+
+    cout << "即将开始导航(" << source << " -- " << dest << " 策略4)" << endl;
+    cout << "------------------------" << endl;
+
+    int dis;
+    if (source[0] == 's' && dest[0] == 's')
+    {
+        int start = this->s_graph.name_to_index(source);
+        int end = this->s_graph.name_to_index(dest);
+
+        if (start == 0 || end == 0)
+        {
+            cout << "目的地或出发地不存在，已退出" << endl;
+            return;
+        }
+
+        dis = this->s_graph.shortest_dis_places(start, end, node, num);
+    }
+    else if (source[0] == 'b' && dest[0] == 'b')
+    {
+        int start = this->b_graph.name_to_index(source);
+        int end = this->b_graph.name_to_index(dest);
+
+        if (start == 0 || end == 0)
+        {
+            cout << "目的地或出发地不存在，已退出" << endl;
+            return;
+        }
+
+        dis = this->b_graph.shortest_dis_places(start, end, node, num);
+    }
+    else
+    {
+        cout << "目的地与出发地不在同一个校区，已退出" << endl;
+        return;
+    }
+
+    cout << "预计全程需" << dis << "米可到达目的地" << endl;
+    cout << "------------------------" << endl;
+    cout << "导航结束" << endl;
+
+    delete[] node;
+    return;
 }

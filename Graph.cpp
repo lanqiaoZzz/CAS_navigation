@@ -284,3 +284,113 @@ int Graph::shortest_dis(int start, int end, int speed_on_foot)
 
     return time;
 }
+
+int Graph::dijkstra(int start, int end)
+{
+    int* dis = new int[this->vertex_num + 1];
+    int* vis = new int[this->vertex_num + 1];
+    int* forward = new int[this->vertex_num + 1];
+
+    for (int i = 1; i <= this->vertex_num; i++)
+    {
+        dis[i] = INF;
+        vis[i] = 0;
+        forward[i] = 0;
+    }
+
+    dis[start] = 0;
+
+    for (int i = 1; i <= this->vertex_num; i++)
+    {
+        int min_dis = INF;
+        int index = 0;
+
+        for (int j = 1; j <= this->vertex_num; j++)
+        {
+            if (!vis[j] && dis[j] <= min_dis)
+            {
+                min_dis = dis[j];
+                index = j;
+            }
+        }
+
+        vis[index] = 1;
+
+        for (int j = 1; j <= this->vertex_num; j++)
+        {
+            if (!vis[j] && this->graph[index][j].length != -1 &&
+                dis[j] > dis[index] + this->graph[index][j].length)
+            {
+                dis[j] = dis[index] + this->graph[index][j].length;
+                forward[j] = index;
+            }
+        }
+    }
+
+    int temp[30];
+    int i = 0, ret = 0;
+    temp[i] = end;
+    while (temp[i] != start)
+    {
+        i++;
+        temp[i] = forward[temp[i - 1]];
+    }
+
+    for (int j = i; j > 0; j--)
+    {
+        ret += this->graph[temp[j]][temp[j - 1]].length;
+    }
+
+    delete[] dis;
+    delete[] vis;
+    delete[] forward;
+
+    return ret;
+}
+
+int Graph::shortest_dis_places(int start, int end, int node[], int num)
+{
+    //1.对中间节点集按从小到大的顺序进行排列
+    sort(node, node + num);
+
+    //2.对每一种排列情况，相邻节点间使用Dijkstra算法求全程距离
+    //  并记录所有情况中的最短距离以及相应的节点排列顺序
+    int minn = INF;
+    int* temp = new int[num];
+    int dis;
+    do
+    {   
+        dis = 0;
+
+        dis += dijkstra(start, node[0]);
+
+        for (int i = 1; i < num - 1; i++)
+        {
+            dis += dijkstra(node[i], node[i + 1]);
+        }
+
+        dis += dijkstra(node[num - 1], end);
+
+        if (dis < minn)
+        {
+            minn = dis;
+            for (int i = 0; i < num; i++)
+            {
+                temp[i] = node[i];
+            }
+        }
+
+    } while (next_permutation(node, node + num));
+
+    //3.打印输出
+    shortest_dis(start, temp[0], 1);
+
+    for (int i = 0; i < num - 1; i++)
+    {
+        shortest_dis(temp[i], temp[i + 1], 1);
+    }
+
+    shortest_dis(temp[num - 1], end, 1);
+
+    return dis;
+}

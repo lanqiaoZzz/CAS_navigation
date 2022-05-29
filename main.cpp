@@ -28,6 +28,8 @@ void test() {
 
 	Student s;
 	s.start_navigation();
+	/*int node[] = { 20, 21 };
+	s.s_graph.shortest_dis_places(30, 10, node, 2);*/
 
 }
 
